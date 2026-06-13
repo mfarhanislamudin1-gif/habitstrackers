@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUMINA — Habit & Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0f;
+--bg2:#0f0f1a;
+--bg3:#141420;
+--bg4:#1a1a2e;
+--bg5:#1e1e35;
+--purple:#7c3aed;
+--purple2:#6d28d9;
+--purple3:#5b21b6;
+--purple-light:#a78bfa;
+--purple-glow:#c4b5fd;
+--gold:#f59e0b;
+--gold2:#d97706;
+--text:#f8f7ff;
+--text2:#c4b5fd;
+--text3:#8b7db8;
+--text4:#4a4570;
+--border:#2d2750;
+--border2:#3d3570;
+--card:#0f0f1c;
+--card2:#13132a;
+--success:#10b981;
+--danger:#ef4444;
+--warning:#f59e0b;
+--sidebar-w:240px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);display:flex}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--purple3);border-radius:2px}
+
+/* ─── SIDEBAR ─── */
+#sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);height:100vh;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;
+  position:relative;z-index:10;
+}
+.logo{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;
+  background:linear-gradient(135deg,var(--purple-light),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:3px;margin-top:2px;font-weight:300}
+.nav-section{padding:16px 12px 4px;font-size:10px;color:var(--text4);letter-spacing:2px;font-weight:500}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  cursor:pointer;border-radius:8px;margin:1px 8px;
+  font-size:13px;color:var(--text3);transition:.2s;border:none;background:none;width:calc(100% - 16px);text-align:left;
+}
+.nav-item:hover{background:var(--bg4);color:var(--purple-light)}
+.nav-item.active{background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(109,40,217,.1));
+  color:var(--purple-light);border-left:2px solid var(--purple-light);border-radius:0 8px 8px 0;margin-left:6px;padding-left:14px}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-quote{
+  margin:auto 0 0;padding:16px;border-top:1px solid var(--border);
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:12px;color:var(--text4);line-height:1.7
+}
+.sidebar-date{padding:12px 16px;font-size:11px;color:var(--text4);text-align:center;border-top:1px solid var(--border)}
+
+/* ─── MAIN ─── */
+#main{flex:1;height:100vh;overflow-y:auto;background:var(--bg)}
+.page{display:none;padding:28px 32px;min-height:100vh}
+.page.active{display:block}
+
+/* ─── HEADER ─── */
+.page-header{margin-bottom:28px}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--text);line-height:1.2}
+.page-sub{font-size:13px;color:var(--text3);margin-top:4px}
+.header-divider{height:1px;background:linear-gradient(90deg,var(--purple3),transparent);margin-top:16px}
+
+/* ─── GRID ─── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+}
+.card-purple{
+  background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(109,40,217,.05));
+  border-color:var(--border2);
+}
+.card-gold{
+  background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(217,119,6,.03));
+  border-color:rgba(245,158,11,.3);
+}
+.card-success{
+  background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.03));
+  border-color:rgba(16,185,129,.3);
+}
+.card-label{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.card-value{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:var(--text);line-height:1}
+.card-value-sm{font-size:24px}
+.card-change{font-size:12px;color:var(--success);margin-top:4px}
+
+/* ─── BUTTONS ─── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 18px;
+  border-radius:8px;font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;
+  border:none;transition:.2s;font-weight:500;
+}
+.btn-primary{background:var(--purple);color:#fff}
+.btn-primary:hover{background:var(--purple2)}
+.btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--purple-light);color:var(--purple-light)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0f00}
+
+/* ─── FORMS ─── */
+.form-group{margin-bottom:16px}
+.form-label{font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+.form-input,.form-textarea,.form-select{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;
+  transition:.2s;outline:none;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--purple);background:var(--bg4)}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.form-select option{background:var(--bg3)}
+
+/* ─── CHECKBOX ─── */
+.check-item{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  margin-bottom:8px;cursor:pointer;transition:.2s;
+}
+.check-item:hover{border-color:var(--border2)}
+.check-item.done{background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.2)}
+.check-item.done .check-text{text-decoration:line-through;color:var(--text3)}
+.check-box{
+  width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:.2s;
+}
+.check-box.checked{background:var(--success);border-color:var(--success)}
+.check-box.checked::after{content:'✓';font-size:11px;color:#fff;font-weight:700}
+.check-text{font-size:14px;flex:1}
+.check-meta{font-size:11px;color:var(--text4)}
+
+/* ─── TAGS ─── */
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-purple{background:rgba(124,58,237,.2);color:var(--purple-light);border:1px solid rgba(124,58,237,.3)}
+.tag-gold{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.2)}
+.tag-green{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.2)}
+.tag-red{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.2)}
+
+/* ─── PROGRESS ─── */
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--purple-light));transition:.5s}
+.progress-fill.gold{background:linear-gradient(90deg,var(--gold2),var(--gold))}
+.progress-fill.green{background:linear-gradient(90deg,#059669,var(--success))}
+
+/* ─── STREAK ─── */
+.streak-dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.streak-dot{
+  width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text4);
+  cursor:pointer;transition:.2s;
+}
+.streak-dot.done{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 0 8px rgba(124,58,237,.4)}
+.streak-dot.today{border-color:var(--purple-light);box-shadow:0 0 0 2px rgba(124,58,237,.2)}
+
+/* ─── MODAL ─── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;z-index:100;
+  backdrop-filter:blur(4px);
+}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:16px;
+  padding:28px;width:520px;max-width:95vw;max-height:85vh;overflow-y:auto;
+}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* ─── MOTIVATION BANNER ─── */
+.moti-banner{
+  background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(245,158,11,.1));
+  border:1px solid rgba(124,58,237,.3);border-radius:12px;padding:20px 24px;
+  margin-bottom:24px;position:relative;overflow:hidden;
+}
+.moti-banner::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent,rgba(124,58,237,.05));
+}
+.moti-quote{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--purple-glow);line-height:1.6;position:relative}
+.moti-author{font-size:11px;color:var(--text3);margin-top:6px;letter-spacing:1px;position:relative}
+
+/* ─── CALENDAR ─── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px}
+.cal-day-name{text-align:center;font-size:10px;color:var(--text4);padding:4px;letter-spacing:1px}
+.cal-day{
+  aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;transition:.2s;border:1px solid transparent;
+  color:var(--text3);position:relative;
+}
+.cal-day:hover{background:var(--bg4);border-color:var(--border)}
+.cal-day.today{border-color:var(--purple);color:var(--purple-light);font-weight:600}
+.cal-day.has-event{background:rgba(124,58,237,.15)}
+.cal-day.has-event::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--purple-light)}
+.cal-day.other-month{color:var(--text4)}
+
+/* ─── FINANCE ITEMS ─── */
+.finance-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;
+}
+.finance-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.finance-info{flex:1}
+.finance-name{font-size:13px;font-weight:500}
+.finance-note{font-size:11px;color:var(--text3);margin-top:2px}
+.finance-amount{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600}
+.income{color:var(--success)}
+.expense{color:var(--danger)}
+
+/* ─── SECTION TITLE ─── */
+.section-title{
+  font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;
+  color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.section-title::before{content:'';display:block;width:3px;height:20px;background:var(--purple);border-radius:2px}
+
+/* ─── HABIT COLOR DOTS ─── */
+.habit-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ─── SCROLLABLE SECTIONS ─── */
+.scroll-list{max-height:320px;overflow-y:auto}
+
+/* ─── EMOTION PICKER ─── */
+.emotion-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.emotion-btn{
+  padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text3);transition:.2s;
+}
+.emotion-btn:hover,.emotion-btn.active{background:rgba(124,58,237,.2);border-color:var(--purple);color:var(--purple-light)}
+
+/* ─── MONEY BARS ─── */
+.money-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.money-bar-label{font-size:12px;color:var(--text3);width:80px;flex-shrink:0}
+.money-bar-track{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.money-bar-fill{height:100%;border-radius:4px;transition:.5s}
+
+/* ─── TOP NAV STRIP ─── */
+.topnav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;background:rgba(10,10,15,.8);
+  border-bottom:1px solid var(--border);backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:9;
+}
+.topnav-left{font-size:13px;color:var(--text3)}
+.topnav-right{display:flex;gap:8px;align-items:center}
+
+/* ─── DREAM CARD ─── */
+.dream-card{
+  background:linear-gradient(135deg,var(--card),var(--card2));
+  border:1px solid var(--border);border-radius:14px;padding:22px;
+  position:relative;overflow:hidden;margin-bottom:12px;
+}
+.dream-card::before{
+  content:'✦';position:absolute;right:20px;top:16px;
+  font-size:24px;color:rgba(124,58,237,.2);
+}
+.dream-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--text)}
+.dream-desc{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.6}
+.dream-date{font-size:11px;color:var(--text4);margin-top:10px}
+
+/* ─── GOAL CHECK ─── */
+.goal-item{
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;
+}
+.goal-header{display:flex;align-items:flex-start;gap:12px}
+.goal-info{flex:1}
+.goal-name{font-size:14px;font-weight:500}
+.goal-deadline{font-size:11px;color:var(--text4);margin-top:3px}
+.goal-progress-text{font-size:12px;color:var(--text3);margin-top:8px}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:fadeIn .25s ease}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.live-dot{animation:pulse 2s infinite}
+
+/* ─── MOBILE MENU ─── */
+@media(max-width:720px){
+  #sidebar{position:fixed;left:-100%;z-index:200;transition:.3s}
+  #sidebar.open{left:0}
+  :root{--sidebar-w:240px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .page{padding:16px}
+}
+.hamburger{display:none}
+@media(max-width:720px){.hamburger{display:flex}}
+
+/* ─── MISC ─── */
+.divider{height:1px;background:var(--border);margin:20px 0}
+.empty-state{text-align:center;padding:40px;color:var(--text4);font-size:13px}
+.empty-state-icon{font-size:40px;margin-bottom:12px;opacity:.3}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--purple);color:#fff}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-center{display:flex;align-items:center;gap:8px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sidebar">
+  <div class="logo">
+    <div class="logo-title">LUMINA</div>
+    <div class="logo-sub">YOUR GROWTH COMPANION</div>
+  </div>
+
+  <div class="nav-section">UTAMA</div>
+  <button class="nav-item active" onclick="navigate('dashboard')">
+    <span class="nav-icon">◈</span> Dashboard
+  </button>
+
+  <div class="nav-section">JADWAL</div>
+  <button class="nav-item" onclick="navigate('daily')">
+    <span class="nav-icon">☀</span> Jadwal Harian
+  </button>
+  <button class="nav-item" onclick="navigate('monthly')">
+    <span class="nav-icon">◫</span> Jadwal Bulanan
+  </button>
+
+  <div class="nav-section">KEBIASAAN</div>
+  <button class="nav-item" onclick="navigate('habits')">
+    <span class="nav-icon">⬡</span> Bangun Kebiasaan
+  </button>
+  <button class="nav-item" onclick="navigate('badhabits')">
+    <span class="nav-icon">⊗</span> Hilangkan Kebiasaan Buruk
+  </button>
+
+  <div class="nav-section">CATATAN</div>
+  <button class="nav-item" onclick="navigate('journal')">
+    <span class="nav-icon">✦</span> Jurnal Harian
+  </button>
+  <button class="nav-item" onclick="navigate('goals')">
+    <span class="nav-icon">◎</span> Tujuan 1 Bulan
+  </button>
+  <button class="nav-item" onclick="navigate('dreams')">
+    <span class="nav-icon">★</span> Mimpi Masa Depan
+  </button>
+  <button class="nav-item" onclick="navigate('finance')">
+    <span class="nav-icon">◈</span> Keuangan
+  </button>
+
+  <div class="sidebar-quote" id="sidebar-quote-text">
+    "Setiap hari adalah kesempatan baru untuk menjadi versi terbaik dirimu."
+  </div>
+  <div class="sidebar-date" id="sidebar-date"></div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div id="main">
+
+  <!-- TOP NAV -->
+  <div class="topnav">
+    <div class="topnav-left" id="topnav-title">Dashboard</div>
+    <div class="topnav-right">
+      <span id="topnav-greeting" style="font-size:12px;color:var(--text4)"></span>
+      <span class="live-dot" style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block"></span>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page active" id="page-dashboard">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="page-title">Selamat Datang Kembali ✦</div>
+        <div class="page-sub">Pantau perjalanan hidupmu dari satu tempat</div>
+        <div class="header-divider"></div>
+      </div>
+
+      <!-- Motivation Banner -->
+      <div class="moti-banner" id="dashboard-moti">
+        <div class="moti-quote" id="moti-text">"Kesuksesan bukan milik mereka yang tidak pernah gagal, melainkan milik mereka yang tidak pernah berhenti mencoba."</div>
+        <div class="moti-author">— Motivasi Harian LUMINA</div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid-4 mb-16">
+        <div class="card card-purple">
+          <div class="card-label">Habits Aktif</div>
+          <div class="card-value" id="db-habit-count">0</div>
+          <div class="card-change">kebiasaan positif</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-label">Streak Hari Ini</div>
+          <div class="card-value" id="db-streak">0</div>
+          <div class="card-change" style="color:var(--gold)">hari berturut-turut</div>
+        </div>
+        <div class="card card-success">
+          <div class="card-label">Tugas Harian</div>
+          <div class="card-value" id="db-tasks">0/0</div>
+          <div class="card-change">diselesaikan hari ini</div>
+        </div>
+        <div class="card" style="border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)">
+          <div class="card-label">Kebiasaan Buruk</div>
+          <div class="card-value" id="db-bad" style="color:var(--danger)">0</div>
+          <div class="card-change" style="color:var(--text4)">sedang dihilangkan</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Today's Habits -->
+        <div class="card">
+          <div class="section-title">Habits Hari Ini</div>
+          <div id="db-habits-list"><div class="empty-state"><div class="empty-state-icon">⬡</div>Belum ada habit. Buat di menu Bangun Kebiasaan.</div></div>
+          <div class="mt-12">
+            <div class="progress-bar"><div class="progress-fill" id="db-habits-progress" style="width:0%"></div></div>
+            <div class="mt-4" style="font-size:11px;color:var(--text3)" id="db-habits-pct">0% selesai</div>
+          </div>
+        </div>
+
+        <!-- Today's Tasks Preview -->
+        <div class="card">
+          <div class="section-title">Tugas Harian</div>
+          <div id="db-tasks-list"><div class="empty-state"><div class="empty-state-icon">☀</div>Belum ada tugas. Buat di Jadwal Harian.</div></div>
+          <div class="mt-12">
+            <div class="progress-bar"><div class="progress-fill gold" id="db-tasks-progress" style="width:0%"></div></div>
+            <div class="mt-4" style="font-size:11px;color:var(--text3)" id="db-tasks-pct">0% selesai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2 mt-16">
+        <!-- Finance Summary -->
+        <div class="card">
+          <div class="section-title">Ringkasan Keuangan</div>
+          <div class="money-bar">
+            <div class="money-bar-label" style="color:var(--success)">Pemasukan</div>
+            <div class="money-bar-track"><div class="money-bar-fill" id="bar-in" style="width:100%;background:var(--success)"></div></div>
+            <div style="font-size:12px;color:var(--success);min-width:80px;text-align:right" id="bar-in-val">Rp 0</div>
+          </div>
+          <div class="money-bar">
+            <div class="money-bar-label" style="color:var(--danger)">Pengeluaran</div>
+            <div class="money-bar-track"><div class="money-bar-fill" id="bar-out" style="width:0%;background:var(--danger)"></div></div>
+            <div style="font-size:12px;color:var(--danger);min-width:80px;text-align:right" id="bar-out-val">Rp 0</div>
+          </div>
+          <div class="money-bar">
+            <div class="money-bar-label" style="color:var(--gold)">Tabungan</div>
+            <div class="money-bar-track"><div class="money-bar-fill" id="bar-sav" style="width:0%;background:var(--gold)"></div></div>
+            <div style="font-size:12px;color:var(--gold);min-width:80px;text-align:right" id="bar-sav-val">Rp 0</div>
+          </div>
+          <div class="money-bar">
+            <div class="money-bar-label" style="color:var(--purple-light)">Investasi</div>
+            <div class="money-bar-track"><div class="money-bar-fill" id="bar-inv" style="width:0%;background:var(--purple-light)"></div></div>
+            <div style="font-size:12px;color:var(--purple-light);min-width:80px;text-align:right" id="bar-inv-val">Rp 0</div>
+          </div>
+          <div class="money-bar">
+            <div class="money-bar-label" style="color:var(--text2)">Dana Darurat</div>
+            <div class="money-bar-track"><div class="money-bar-fill" id="bar-emer" style="width:0%;background:var(--text2)"></div></div>
+            <div style="font-size:12px;color:var(--text2);min-width:80px;text-align:right" id="bar-emer-val">Rp 0</div>
+          </div>
+        </div>
+
+        <!-- Goals Preview -->
+        <div class="card">
+          <div class="section-title">Tujuan Bulan Ini</div>
+          <div id="db-goals-list"><div class="empty-state"><div class="empty-state-icon">◎</div>Belum ada tujuan. Buat di menu Tujuan 1 Bulan.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DAILY ═══ -->
+  <div class="page" id="page-daily">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Jadwal Harian ☀</div>
+            <div class="page-sub" id="daily-date-label">Hari ini</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-task')">+ Tambah Tugas</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="moti-banner" style="padding:14px 18px;margin-bottom:20px">
+        <div class="moti-quote" style="font-size:14px" id="daily-moti">"Mulailah harimu dengan niat yang kuat dan akhiri dengan rasa syukur."</div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="section-title">🌅 Pagi</div>
+          <div id="tasks-pagi" class="scroll-list"></div>
+        </div>
+        <div>
+          <div class="section-title">☀ Siang</div>
+          <div id="tasks-siang" class="scroll-list"></div>
+        </div>
+      </div>
+      <div class="grid-2 mt-16">
+        <div>
+          <div class="section-title">🌆 Sore</div>
+          <div id="tasks-sore" class="scroll-list"></div>
+        </div>
+        <div>
+          <div class="section-title">🌙 Malam</div>
+          <div id="tasks-malam" class="scroll-list"></div>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="flex-between mb-8">
+          <div class="section-title" style="margin-bottom:0">Progress Hari Ini</div>
+          <div class="card-value-sm" id="daily-pct">0%</div>
+        </div>
+        <div class="progress-bar" style="height:10px"><div class="progress-fill" id="daily-prog" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MONTHLY ═══ -->
+  <div class="page" id="page-monthly">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Jadwal Bulanan ◫</div>
+            <div class="page-sub" id="monthly-label">Bulan ini</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-monthly')">+ Tambah Catatan</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Calendar -->
+        <div class="card">
+          <div class="flex-between mb-8">
+            <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">‹ Prev</button>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500" id="cal-month-label"></div>
+            <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">Next ›</button>
+          </div>
+          <div class="cal-grid" id="calendar"></div>
+        </div>
+
+        <!-- Selected Day Notes -->
+        <div class="card">
+          <div class="section-title" id="monthly-day-title">Pilih Tanggal</div>
+          <div id="monthly-day-notes"><div class="empty-state">Klik tanggal untuk melihat atau menambah catatan</div></div>
+          <div class="mt-12" id="monthly-day-form" style="display:none">
+            <textarea class="form-textarea" id="monthly-note-text" placeholder="Catatan untuk hari ini..."></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveMonthlyNote()">Simpan</button>
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('monthly-day-form').style.display='none'">Batal</button>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm mt-8" onclick="showMonthlyForm()" id="monthly-add-note-btn">+ Tambah Catatan</button>
+        </div>
+      </div>
+
+      <!-- Monthly Tasks Checklist -->
+      <div class="card mt-16">
+        <div class="flex-between mb-12">
+          <div class="section-title" style="margin:0">Checklist Bulan Ini</div>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-monthly-task')">+ Tambah</button>
+        </div>
+        <div id="monthly-tasks"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HABITS ═══ -->
+  <div class="page" id="page-habits">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Bangun Kebiasaan Positif ⬡</div>
+            <div class="page-sub">Konsistensi adalah kunci kesuksesan</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-habit')">+ Tambah Habit</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="moti-banner" style="padding:14px 18px;margin-bottom:20px">
+        <div class="moti-quote" style="font-size:14px">"Kamu tidak naik ke level tujuanmu, kamu turun ke level sistemmu. Bangun sistem yang kuat!"</div>
+      </div>
+
+      <div id="habits-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ BAD HABITS ═══ -->
+  <div class="page" id="page-badhabits">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Hilangkan Kebiasaan Buruk ⊗</div>
+            <div class="page-sub">Setiap hari tanpa kebiasaan buruk adalah kemenangan</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-badhab')">+ Tambah</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="moti-banner" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(124,58,237,.1));border-color:rgba(239,68,68,.3);padding:14px 18px;margin-bottom:20px">
+        <div class="moti-quote" style="font-size:14px">"Perubahan tidak terjadi dalam semalam, tetapi setiap keputusan kecil membawamu lebih dekat ke versi terbaik dirimu."</div>
+      </div>
+
+      <div id="badhabits-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ JOURNAL ═══ -->
+  <div class="page" id="page-journal">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Jurnal Harian ✦</div>
+            <div class="page-sub">Evaluasi diri & refleksi mendalam</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-journal')">+ Tulis Jurnal</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="moti-banner" style="padding:14px 18px;margin-bottom:20px">
+        <div class="moti-quote" style="font-size:14px">"Orang yang menulis rencananya, menggandakan kemungkinannya untuk berhasil. Jadikan refleksi sebagai ritual harianmu."</div>
+      </div>
+
+      <div id="journal-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ GOALS ═══ -->
+  <div class="page" id="page-goals">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Tujuan 1 Bulan Kedepan ◎</div>
+            <div class="page-sub">Fokus. Rencana. Eksekusi. Berhasil.</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-goal')">+ Tambah Tujuan</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="moti-banner" style="padding:14px 18px;margin-bottom:20px">
+        <div class="moti-quote" style="font-size:14px">"Tujuan tanpa rencana hanyalah angan-angan. Rencana tanpa aksi hanyalah mimpi. Namun tujuan dengan rencana dan aksi adalah realita!"</div>
+      </div>
+
+      <div id="goals-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ DREAMS ═══ -->
+  <div class="page" id="page-dreams">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Mimpi Masa Depan ★</div>
+            <div class="page-sub">Tuliskan mimpimu dan jadikan peta jalanmu</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-dream')">+ Tambah Mimpi</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="moti-banner" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(124,58,237,.1));border-color:rgba(245,158,11,.3);padding:14px 18px;margin-bottom:20px">
+        <div class="moti-quote" style="font-size:14px">"Mereka yang cukup gila untuk berpikir bisa mengubah dunia, adalah mereka yang benar-benar mengubahnya. Tuliskan mimpimu setinggi bintang!"</div>
+      </div>
+
+      <div id="dreams-list" class="grid-2"></div>
+    </div>
+  </div>
+
+  <!-- ═══ FINANCE ═══ -->
+  <div class="page" id="page-finance">
+    <div style="padding:28px 32px">
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <div class="page-title">Catatan Keuangan ◈</div>
+            <div class="page-sub">Kelola uangmu, kelola hidupmu</div>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-finance')">+ Catat Transaksi</button>
+        </div>
+        <div class="header-divider"></div>
+      </div>
+
+      <!-- Finance Summary Cards -->
+      <div class="grid-4 mb-16" id="finance-summary-cards">
+        <div class="card card-success">
+          <div class="card-label">Total Pemasukan</div>
+          <div class="card-value card-value-sm income" id="fin-total-in">Rp 0</div>
+        </div>
+        <div class="card" style="border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.05)">
+          <div class="card-label">Total Pengeluaran</div>
+          <div class="card-value card-value-sm expense" id="fin-total-out">Rp 0</div>
+        </div>
+        <div class="card card-gold">
+          <div class="card-label">Tabungan</div>
+          <div class="card-value card-value-sm" style="color:var(--gold)" id="fin-total-sav">Rp 0</div>
+        </div>
+        <div class="card card-purple">
+          <div class="card-label">Investasi</div>
+          <div class="card-value card-value-sm" style="color:var(--purple-light)" id="fin-total-inv">Rp 0</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-label">Dana Darurat</div>
+          <div class="card-value card-value-sm" style="color:var(--text2)" id="fin-total-emer">Rp 0</div>
+          <div class="progress-bar mt-8"><div class="progress-fill" id="emer-prog" style="width:0%;background:var(--text2)"></div></div>
+          <div class="mt-4" style="font-size:11px;color:var(--text4)">Target: 6x pengeluaran bulanan</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Saldo Bersih</div>
+          <div class="card-value card-value-sm" id="fin-balance" style="color:var(--success)">Rp 0</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:6px">Pemasukan - Pengeluaran</div>
+        </div>
+      </div>
+
+      <!-- Finance Tabs -->
+      <div style="display:flex;gap:6px;margin:20px 0 12px">
+        <button class="btn btn-primary btn-sm fin-tab active" data-cat="all" onclick="filterFinance('all',this)">Semua</button>
+        <button class="btn btn-ghost btn-sm fin-tab" data-cat="income" onclick="filterFinance('income',this)">Pemasukan</button>
+        <button class="btn btn-ghost btn-sm fin-tab" data-cat="expense" onclick="filterFinance('expense',this)">Pengeluaran</button>
+        <button class="btn btn-ghost btn-sm fin-tab" data-cat="saving" onclick="filterFinance('saving',this)">Tabungan</button>
+        <button class="btn btn-ghost btn-sm fin-tab" data-cat="investment" onclick="filterFinance('investment',this)">Investasi</button>
+        <button class="btn btn-ghost btn-sm fin-tab" data-cat="emergency" onclick="filterFinance('emergency',this)">Dana Darurat</button>
+      </div>
+
+      <div id="finance-list" class="scroll-list" style="max-height:400px"></div>
+    </div>
+  </div>
+
+</div><!-- end #main -->
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="modal-add-task" style="display:none" onclick="closeModal('modal-add-task',event)">
+  <div class="modal">
+    <div class="modal-title">Tambah Tugas Harian</div>
+    <div class="form-group">
+      <label class="form-label">Nama Tugas</label>
+      <input class="form-input" id="task-name" placeholder="Contoh: Olahraga pagi 30 menit">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Waktu</label>
+      <select class="form-select" id="task-time">
+        <option value="pagi">🌅 Pagi</option>
+        <option value="siang">☀ Siang</option>
+        <option value="sore">🌆 Sore</option>
+        <option value="malam">🌙 Malam</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan (opsional)</label>
+      <input class="form-input" id="task-note" placeholder="Detail tambahan...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-task')">Batal</button>
+      <button class="btn btn-primary" onclick="addTask()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Monthly Task Modal -->
+<div class="modal-overlay" id="modal-add-monthly" style="display:none" onclick="closeModal('modal-add-monthly',event)">
+  <div class="modal">
+    <div class="modal-title">Tambah Catatan Bulanan</div>
+    <div class="form-group">
+      <label class="form-label">Nama / Judul</label>
+      <input class="form-input" id="monthly-task-name" placeholder="Nama tugas atau catatan...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tanggal Target</label>
+      <input class="form-input" type="date" id="monthly-task-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan</label>
+      <textarea class="form-textarea" id="monthly-task-note" placeholder="Detail..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-monthly')">Batal</button>
+      <button class="btn btn-primary" onclick="addMonthlyTask()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Monthly Task (checklist) -->
+<div class="modal-overlay" id="modal-add-monthly-task" style="display:none" onclick="closeModal('modal-add-monthly-task',event)">
+  <div class="modal">
+    <div class="modal-title">Tambah Checklist Bulanan</div>
+    <div class="form-group">
+      <label class="form-label">Tugas</label>
+      <input class="form-input" id="mchk-name" placeholder="Nama tugas...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-monthly-task')">Batal</button>
+      <button class="btn btn-primary" onclick="addMonthlyCheck()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Habit Modal -->
+<div class="modal-overlay" id="modal-add-habit" style="display:none" onclick="closeModal('modal-add-habit',event)">
+  <div class="modal">
+    <div class="modal-title">Tambah Kebiasaan Positif</div>
+    <div class="form-group">
+      <label class="form-label">Nama Kebiasaan</label>
+      <input class="form-input" id="habit-name" placeholder="Contoh: Membaca 20 halaman/hari">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="habit-cat">
+        <option value="kesehatan">💪 Kesehatan & Olahraga</option>
+        <option value="mental">🧠 Mental & Spiritual</option>
+        <option value="produktif">⚡ Produktivitas</option>
+        <option value="sosial">🤝 Sosial</option>
+        <option value="finansial">💰 Finansial</option>
+        <option value="lainnya">✨ Lainnya</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Streak (hari)</label>
+      <input class="form-input" type="number" id="habit-target" placeholder="66" value="66">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Warna</label>
+      <select class="form-select" id="habit-color">
+        <option value="#7c3aed">💜 Ungu</option>
+        <option value="#10b981">💚 Hijau</option>
+        <option value="#f59e0b">💛 Gold</option>
+        <option value="#ef4444">❤ Merah</option>
+        <option value="#3b82f6">💙 Biru</option>
+        <option value="#ec4899">💗 Pink</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Alasan / Motivasi</label>
+      <textarea class="form-textarea" id="habit-why" placeholder="Kenapa kamu ingin membangun kebiasaan ini?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-habit')">Batal</button>
+      <button class="btn btn-primary" onclick="addHabit()">Mulai Habit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Bad Habit Modal -->
+<div class="modal-overlay" id="modal-add-badhab" style="display:none" onclick="closeModal('modal-add-badhab',event)">
+  <div class="modal">
+    <div class="modal-title">Kebiasaan Buruk yang Ingin Dihilangkan</div>
+    <div class="form-group">
+      <label class="form-label">Nama Kebiasaan Buruk</label>
+      <input class="form-input" id="badhab-name" placeholder="Contoh: Scroll media sosial berlebihan">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Alasan Ingin Berhenti</label>
+      <textarea class="form-textarea" id="badhab-why" placeholder="Mengapa kamu ingin menghilangkan kebiasaan ini?"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pengganti Positif</label>
+      <input class="form-input" id="badhab-replace" placeholder="Gantikan dengan kebiasaan apa?">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-badhab')">Batal</button>
+      <button class="btn btn-primary" onclick="addBadHabit()">Mulai Tracking</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Journal Modal -->
+<div class="modal-overlay" id="modal-add-journal" style="display:none" onclick="closeModal('modal-add-journal',event)">
+  <div class="modal">
+    <div class="modal-title">✦ Jurnal Hari Ini</div>
+    <div class="form-group">
+      <label class="form-label">Bagaimana perasaanmu hari ini?</label>
+      <div class="emotion-picker" id="emotion-picker">
+        <button class="emotion-btn" onclick="selectEmotion(this,'😊')">😊 Senang</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'😤')">😤 Frustrasi</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'😢')">😢 Sedih</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'😌')">😌 Tenang</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'🔥')">🔥 Semangat</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'😰')">😰 Cemas</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'💪')">💪 Bangga</button>
+        <button class="emotion-btn" onclick="selectEmotion(this,'🙏')">🙏 Bersyukur</button>
+      </div>
+      <input type="hidden" id="journal-emotion" value="">
+    </div>
+    <div class="form-group">
+      <label class="form-label">3 Hal Terbaik Hari Ini</label>
+      <textarea class="form-textarea" id="journal-best" placeholder="1. ...&#10;2. ...&#10;3. ..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Refleksi & Evaluasi Diri</label>
+      <textarea class="form-textarea" id="journal-reflect" placeholder="Apa yang berjalan baik? Apa yang bisa diperbaiki?" style="min-height:100px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pelajaran yang Dipetik</label>
+      <textarea class="form-textarea" id="journal-lesson" placeholder="Apa yang kamu pelajari hari ini?"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rencana Esok Hari</label>
+      <textarea class="form-textarea" id="journal-tomorrow" placeholder="Apa yang ingin kamu lakukan besok?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-journal')">Batal</button>
+      <button class="btn btn-primary" onclick="addJournal()">Simpan Jurnal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Goal Modal -->
+<div class="modal-overlay" id="modal-add-goal" style="display:none" onclick="closeModal('modal-add-goal',event)">
+  <div class="modal">
+    <div class="modal-title">Tambah Tujuan Bulan Ini</div>
+    <div class="form-group">
+      <label class="form-label">Tujuan</label>
+      <input class="form-input" id="goal-name" placeholder="Contoh: Baca 4 buku bulan ini">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deadline</label>
+      <input class="form-input" type="date" id="goal-deadline">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="goal-cat">
+        <option value="karir">💼 Karir & Bisnis</option>
+        <option value="kesehatan">💪 Kesehatan</option>
+        <option value="finansial">💰 Finansial</option>
+        <option value="relasi">❤ Relasi</option>
+        <option value="diri">🌟 Pengembangan Diri</option>
+        <option value="lainnya">✨ Lainnya</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Langkah-langkah</label>
+      <textarea class="form-textarea" id="goal-steps" placeholder="Langkah 1: ...&#10;Langkah 2: ...&#10;Langkah 3: ..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Progress Awal (%)</label>
+      <input class="form-input" type="number" id="goal-progress" placeholder="0" value="0" min="0" max="100">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-goal')">Batal</button>
+      <button class="btn btn-primary" onclick="addGoal()">Tambah Tujuan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Dream Modal -->
+<div class="modal-overlay" id="modal-add-dream" style="display:none" onclick="closeModal('modal-add-dream',event)">
+  <div class="modal">
+    <div class="modal-title">★ Mimpi Masa Depanmu</div>
+    <div class="form-group">
+      <label class="form-label">Judul Mimpi</label>
+      <input class="form-input" id="dream-title" placeholder="Contoh: Menjadi entrepreneur sukses di 30">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deskripsi Detail</label>
+      <textarea class="form-textarea" id="dream-desc" placeholder="Gambarkan mimpimu sedetail mungkin... di mana kamu, siapa yang bersamamu, bagaimana rasanya..." style="min-height:120px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Tahun Tercapai</label>
+      <input class="form-input" type="number" id="dream-year" placeholder="2030" min="2024" max="2070">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="dream-cat">
+        <option value="karir">💼 Karir & Bisnis</option>
+        <option value="kebebasan">🌏 Kebebasan Finansial</option>
+        <option value="keluarga">👨‍👩‍👧 Keluarga</option>
+        <option value="kesehatan">💪 Kesehatan & Tubuh Ideal</option>
+        <option value="gaya">✨ Gaya Hidup</option>
+        <option value="kontribusi">🌟 Kontribusi & Legacy</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-dream')">Batal</button>
+      <button class="btn btn-gold" onclick="addDream()">✦ Simpan Mimpi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Finance Modal -->
+<div class="modal-overlay" id="modal-add-finance" style="display:none" onclick="closeModal('modal-add-finance',event)">
+  <div class="modal">
+    <div class="modal-title">Catat Transaksi</div>
+    <div class="form-group">
+      <label class="form-label">Jenis</label>
+      <select class="form-select" id="fin-type">
+        <option value="income">💚 Pemasukan</option>
+        <option value="expense">❤ Pengeluaran</option>
+        <option value="saving">💛 Tabungan</option>
+        <option value="investment">💜 Investasi</option>
+        <option value="emergency">💠 Dana Darurat</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deskripsi</label>
+      <input class="form-input" id="fin-name" placeholder="Contoh: Gaji bulanan, Beli groceries, dll">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Jumlah (Rp)</label>
+      <input class="form-input" type="number" id="fin-amount" placeholder="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan</label>
+      <input class="form-input" id="fin-note" placeholder="Keterangan tambahan...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-add-finance')">Batal</button>
+      <button class="btn btn-primary" onclick="addFinance()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Goal Progress Modal -->
+<div class="modal-overlay" id="modal-update-goal" style="display:none" onclick="closeModal('modal-update-goal',event)">
+  <div class="modal">
+    <div class="modal-title">Update Progress Tujuan</div>
+    <input type="hidden" id="update-goal-id">
+    <div class="form-group">
+      <label class="form-label">Progress (%)</label>
+      <input class="form-input" type="number" id="update-goal-val" min="0" max="100">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Catatan Update</label>
+      <textarea class="form-textarea" id="update-goal-note" placeholder="Perkembangan terbaru..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalById('modal-update-goal')">Batal</button>
+      <button class="btn btn-primary" onclick="updateGoal()">Update</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA LAYER — localStorage persistence
+// ════════════════════════════════════════
+const DB = {
+  get(k){try{return JSON.parse(localStorage.getItem('lumina_'+k))||null}catch{return null}},
+  set(k,v){localStorage.setItem('lumina_'+k,JSON.stringify(v))},
+  tasks(){return this.get('tasks')||[]},
+  saveTasks(d){this.set('tasks',d)},
+  monthlyTasks(){return this.get('monthly_tasks')||[]},
+  saveMonthlyTasks(d){this.set('monthly_tasks',d)},
+  monthlyNotes(){return this.get('monthly_notes')||{}},
+  saveMonthlyNotes(d){this.set('monthly_notes',d)},
+  habits(){return this.get('habits')||[]},
+  saveHabits(d){this.set('habits',d)},
+  badhabits(){return this.get('badhabits')||[]},
+  saveBadhabits(d){this.set('badhabits',d)},
+  journals(){return this.get('journals')||[]},
+  saveJournals(d){this.set('journals',d)},
+  goals(){return this.get('goals')||[]},
+  saveGoals(d){this.set('goals',d)},
+  dreams(){return this.get('dreams')||[]},
+  saveDreams(d){this.set('dreams',d)},
+  finances(){return this.get('finances')||[]},
+  saveFinances(d){this.set('finances',d)},
+};
+
+// ════ MOTIVATIONAL QUOTES ════
+const QUOTES = [
+  "Kesuksesan bukan milik mereka yang tidak pernah gagal, melainkan milik mereka yang tidak pernah berhenti mencoba.",
+  "Setiap hari kamu punya pilihan: tumbuh atau menyerah. Pilih tumbuh, selalu.",
+  "Jangan bandingkan perjalananmu dengan orang lain. Kamu tidak tahu seberapa jauh mereka harus berjalan.",
+  "Kerja keras mengalahkan bakat, ketika bakat tidak mau bekerja keras.",
+  "Satu langkah kecil hari ini lebih baik daripada seribu rencana yang tidak pernah dimulai.",
+  "Kamu lebih kuat dari yang kamu kira, lebih berbakat dari yang kamu percaya, dan lebih mampu dari yang kamu bayangkan.",
+  "Jatuh tujuh kali, bangun delapan. Inilah semangat juara sejati.",
+  "Orang-orang sukses memiliki kebiasaan melakukan hal-hal yang tidak suka dilakukan orang gagal.",
+  "Bukan tentang seberapa keras kamu jatuh, tapi seberapa cepat kamu bangkit kembali.",
+  "Investasi terbaik yang bisa kamu lakukan adalah investasi pada dirimu sendiri.",
+  "Hidupmu adalah cerminan dari pikiranmu. Ubah pikiranmu, ubah hidupmu.",
+  "Setiap mimpi besar dimulai dari langkah kecil pertama. Ambil langkah itu sekarang.",
+  "Disiplin adalah jembatan antara tujuan dan pencapaian.",
+  "Kamu tidak perlu menjadi sempurna, kamu hanya perlu terus bergerak maju.",
+  "Waktu terbaik untuk menanam pohon adalah 20 tahun lalu. Waktu terbaik kedua adalah sekarang.",
+  "Jangan tunggu motivasi datang, bangunlah momentum dengan bergerak.",
+  "Sukses adalah perjalanan, bukan tujuan. Nikmati setiap langkahnya.",
+  "Mereka yang menyerah tidak pernah menang. Mereka yang menang tidak pernah menyerah.",
+  "Keberanian bukan tidak adanya rasa takut, tapi memutuskan bahwa ada sesuatu yang lebih penting dari rasa takut.",
+  "Jadilah perubahan yang ingin kamu lihat di dunia — mulai dari dirimu sendiri.",
+  "Fokus pada prosesnya, bukan hasilnya. Proses yang baik akan selalu menghasilkan buah yang manis.",
+  "Setiap kegagalan adalah guru terbaik yang pernah ada. Belajarlah, bangkitlah, dan menangkan!",
+  "Hidupmu terlalu berharga untuk dihabiskan dengan setengah hati. Berikan segalamu!",
+  "Orang yang tidak pernah belajar adalah orang yang tidak pernah tumbuh.",
+  "Hari ini adalah hari terbaik yang pernah ada. Manfaatkan setiap detiknya.",
+  "Konsistensi kecil setiap hari menciptakan hasil luar biasa setiap tahun.",
+  "Pikiran yang kuat menciptakan kehidupan yang kuat. Jaga pikiranmu.",
+  "Kamu adalah produk dari kebiasaan-kebiasaanmu. Bangunlah kebiasaan yang membangunmu.",
+  "Tidak ada lift menuju kesuksesan. Kamu harus naik tangga, satu langkah demi satu langkah.",
+  "Impianmu tidak memiliki tanggal kadaluarsa. Jangan berhenti berjuang.",
+];
+
+let currentQuoteIdx = Math.floor(Math.random()*QUOTES.length);
+function nextQuote(){currentQuoteIdx=(currentQuoteIdx+1)%QUOTES.length;return QUOTES[currentQuoteIdx];}
+
+// ════ NAVIGATION ════
+let currentPage = 'dashboard';
+function navigate(page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const nav = document.querySelector(`.nav-item[onclick="navigate('${page}')"]`);
+  if(nav) nav.classList.add('active');
+  const pg = document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  currentPage = page;
+  document.getElementById('topnav-title').textContent = nav ? nav.textContent.trim() : page;
+  renderPage(page);
+}
+
+function renderPage(p){
+  if(p==='dashboard') renderDashboard();
+  if(p==='daily') renderDaily();
+  if(p==='monthly') renderMonthly();
+  if(p==='habits') renderHabits();
+  if(p==='badhabits') renderBadHabits();
+  if(p==='journal') renderJournal();
+  if(p==='goals') renderGoals();
+  if(p==='dreams') renderDreams();
+  if(p==='finance') renderFinance();
+}
+
+// ════ MODALS ════
+function openModal(id){document.getElementById(id).style.display='flex'}
+function closeModalById(id){document.getElementById(id).style.display='none'}
+function closeModal(id,e){if(e.target===document.getElementById(id))closeModalById(id)}
+
+// ════ HELPERS ════
+function fmtRp(n){return'Rp '+Number(n||0).toLocaleString('id-ID')}
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function fmtDate(d){return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}
+function uid(){return Date.now()+''+Math.random().toString(36).slice(2,6)}
+
+// ════ INIT ════
+function init(){
+  const now = new Date();
+  const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('sidebar-date').textContent = dateStr;
+  document.getElementById('daily-date-label').textContent = dateStr;
+  const h = now.getHours();
+  const greeting = h<12?'Selamat Pagi ☀':h<15?'Selamat Siang 🌤':h<18?'Selamat Sore 🌆':'Selamat Malam 🌙';
+  document.getElementById('topnav-greeting').textContent = greeting;
+  // Rotate quote every 30s
+  setInterval(()=>{
+    const t=document.getElementById('moti-text');
+    if(t) t.textContent='"'+nextQuote()+'"';
+    const sq=document.getElementById('sidebar-quote-text');
+    if(sq) sq.textContent='"'+QUOTES[Math.floor(Math.random()*QUOTES.length)]+'"';
+  },30000);
+  renderDashboard();
+  // set today date on date inputs
+  document.getElementById('goal-deadline').value = todayStr();
+  document.getElementById('monthly-task-date').value = todayStr();
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard(){
+  const habits = DB.habits();
+  const tasks = DB.tasks().filter(t=>t.date===todayStr());
+  const goals = DB.goals();
+  const finances = DB.finances();
+
+  // stats
+  document.getElementById('db-habit-count').textContent = habits.length;
+  const badh = DB.badhabits();
+  document.getElementById('db-bad').textContent = badh.length;
+
+  // streak: count habits done today
+  const todayDone = habits.filter(h=>h.log&&h.log.includes(todayStr())).length;
+  document.getElementById('db-streak').textContent = calcLongestStreak();
+
+  // tasks
+  const taskDone = tasks.filter(t=>t.done).length;
+  document.getElementById('db-tasks').textContent = taskDone+'/'+tasks.length;
+
+  // habits list
+  const hl = document.getElementById('db-habits-list');
+  if(!habits.length){hl.innerHTML='<div class="empty-state"><div class="empty-state-icon">⬡</div>Belum ada habit.</div>';return;}
+  const done = habits.filter(h=>h.log&&h.log.includes(todayStr())).length;
+  hl.innerHTML = habits.slice(0,4).map(h=>{
+    const isDone = h.log&&h.log.includes(todayStr());
+    return `<div class="check-item ${isDone?'done':''}" onclick="toggleHabitToday('${h.id}')">
+      <div class="check-box ${isDone?'checked':''}"></div>
+      <div class="habit-color" style="background:${h.color}"></div>
+      <div class="check-text">${h.name}</div>
+    </div>`;
+  }).join('');
+  const pct = habits.length?Math.round(done/habits.length*100):0;
+  document.getElementById('db-habits-progress').style.width=pct+'%';
+  document.getElementById('db-habits-pct').textContent=pct+'% habits selesai';
+
+  // tasks list
+  const tl = document.getElementById('db-tasks-list');
+  if(!tasks.length){tl.innerHTML='<div class="empty-state"><div class="empty-state-icon">☀</div>Belum ada tugas hari ini.</div>';}
+  else{
+    tl.innerHTML = tasks.slice(0,4).map(t=>`
+      <div class="check-item ${t.done?'done':''}" onclick="toggleTaskDashboard('${t.id}')">
+        <div class="check-box ${t.done?'checked':''}"></div>
+        <div class="check-text">${t.name}</div>
+        <div class="check-meta">${t.time}</div>
+      </div>`).join('');
+    const tp = tasks.length?Math.round(taskDone/tasks.length*100):0;
+    document.getElementById('db-tasks-progress').style.width=tp+'%';
+    document.getElementById('db-tasks-pct').textContent=tp+'% tugas selesai';
+  }
+
+  // finance bars
+  const totals = {income:0,expense:0,saving:0,investment:0,emergency:0};
+  finances.forEach(f=>totals[f.type]=(totals[f.type]||0)+(+f.amount));
+  const maxVal = Math.max(totals.income,1);
+  document.getElementById('bar-in').style.width='100%';
+  document.getElementById('bar-in-val').textContent=fmtRp(totals.income);
+  document.getElementById('bar-out').style.width=Math.min(totals.expense/maxVal*100,100)+'%';
+  document.getElementById('bar-out-val').textContent=fmtRp(totals.expense);
+  document.getElementById('bar-sav').style.width=Math.min(totals.saving/maxVal*100,100)+'%';
+  document.getElementById('bar-sav-val').textContent=fmtRp(totals.saving);
+  document.getElementById('bar-inv').style.width=Math.min(totals.investment/maxVal*100,100)+'%';
+  document.getElementById('bar-inv-val').textContent=fmtRp(totals.investment);
+  document.getElementById('bar-emer').style.width=Math.min(totals.emergency/maxVal*100,100)+'%';
+  document.getElementById('bar-emer-val').textContent=fmtRp(totals.emergency);
+
+  // goals
+  const gl = document.getElementById('db-goals-list');
+  if(!goals.length){gl.innerHTML='<div class="empty-state"><div class="empty-state-icon">◎</div>Belum ada tujuan.</div>';}
+  else{
+    gl.innerHTML=goals.slice(0,3).map(g=>`
+      <div class="goal-item">
+        <div class="goal-header">
+          <div class="goal-info">
+            <div class="goal-name">${g.name}</div>
+            <div class="goal-deadline">Deadline: ${fmtDate(g.deadline)}</div>
+          </div>
+          <div class="tag tag-purple">${g.progress}%</div>
+        </div>
+        <div class="progress-bar mt-8"><div class="progress-fill" style="width:${g.progress}%"></div></div>
+      </div>`).join('');
+  }
+}
+
+function toggleHabitToday(id){
+  const h=DB.habits();const idx=h.findIndex(x=>x.id===id);
+  if(idx<0)return;
+  if(!h[idx].log)h[idx].log=[];
+  const t=todayStr();
+  if(h[idx].log.includes(t))h[idx].log=h[idx].log.filter(d=>d!==t);
+  else h[idx].log.push(t);
+  DB.saveHabits(h);renderDashboard();if(currentPage==='habits')renderHabits();
+}
+
+function toggleTaskDashboard(id){
+  const tasks=DB.tasks();const idx=tasks.findIndex(t=>t.id===id);
+  if(idx<0)return;
+  tasks[idx].done=!tasks[idx].done;
+  DB.saveTasks(tasks);renderDashboard();if(currentPage==='daily')renderDaily();
+}
+
+function calcLongestStreak(){
+  const habits=DB.habits();if(!habits.length)return 0;
+  // Count consecutive days where at least one habit was done
+  let streak=0;let d=new Date();
+  for(let i=0;i<365;i++){
+    const ds=d.toISOString().split('T')[0];
+    const anyDone=habits.some(h=>h.log&&h.log.includes(ds));
+    if(anyDone)streak++;else if(i>0)break;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+// ══════════════════════════════════════════
+// DAILY TASKS
+// ══════════════════════════════════════════
+function renderDaily(){
+  const tasks=DB.tasks().filter(t=>t.date===todayStr());
+  const slots=['pagi','siang','sore','malam'];
+  slots.forEach(slot=>{
+    const el=document.getElementById('tasks-'+slot);
+    const st=tasks.filter(t=>t.time===slot);
+    if(!st.length){el.innerHTML='<div class="empty-state" style="padding:20px"><div>Tidak ada tugas</div></div>';return;}
+    el.innerHTML=st.map(t=>`
+      <div class="check-item ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
+        <div class="check-box ${t.done?'checked':''}"></div>
+        <div>
+          <div class="check-text">${t.name}</div>
+          ${t.note?`<div class="check-meta">${t.note}</div>`:''}
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-left:auto;padding:3px 8px;font-size:10px" onclick="deleteTask(event,'${t.id}')">✕</button>
+      </div>`).join('');
+  });
+  const done=tasks.filter(t=>t.done).length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  document.getElementById('daily-pct').textContent=pct+'%';
+  document.getElementById('daily-prog').style.width=pct+'%';
+  // Random daily motivation
+  const motiEl=document.getElementById('daily-moti');
+  if(motiEl){motiEl.textContent='"'+QUOTES[Math.floor(Math.random()*QUOTES.length)]+'"';}
+}
+
+function addTask(){
+  const name=document.getElementById('task-name').value.trim();
+  if(!name)return;
+  const tasks=DB.tasks();
+  tasks.push({id:uid(),name,time:document.getElementById('task-time').value,note:document.getElementById('task-note').value,date:todayStr(),done:false});
+  DB.saveTasks(tasks);
+  document.getElementById('task-name').value='';document.getElementById('task-note').value='';
+  closeModalById('modal-add-task');renderDaily();renderDashboard();
+}
+
+function toggleTask(id){
+  const tasks=DB.tasks();const idx=tasks.findIndex(t=>t.id===id);
+  if(idx<0)return;
+  tasks[idx].done=!tasks[idx].done;
+  DB.saveTasks(tasks);renderDaily();renderDashboard();
+}
+
+function deleteTask(e,id){
+  e.stopPropagation();
+  if(!confirm('Hapus tugas ini?'))return;
+  DB.saveTasks(DB.tasks().filter(t=>t.id!==id));
+  renderDaily();renderDashboard();
+}
+
+// ══════════════════════════════════════════
+// MONTHLY
+// ══════════════════════════════════════════
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth(),selectedDay=null;
+
+function renderMonthly(){
+  renderCalendar();renderMonthlyTasks();
+}
+
+function renderCalendar(){
+  const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('cal-month-label').textContent=months[calMonth]+' '+calYear;
+  const notes=DB.monthlyNotes();
+  const cal=document.getElementById('calendar');
+  const days=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  let html=days.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  const first=new Date(calYear,calMonth,1).getDay();
+  const last=new Date(calYear,calMonth+1,0).getDate();
+  for(let i=0;i<first;i++) html+=`<div class="cal-day other-month"></div>`;
+  const td=new Date();
+  for(let d=1;d<=last;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=td.getDate()===d&&td.getMonth()===calMonth&&td.getFullYear()===calYear;
+    const hasNote=notes[ds];
+    html+=`<div class="cal-day ${isToday?'today':''} ${hasNote?'has-event':''}" onclick="selectDay('${ds}',${d})">${d}</div>`;
+  }
+  cal.innerHTML=html;
+  document.getElementById('monthly-label').textContent=months[calMonth]+' '+calYear;
+}
+
+function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+function selectDay(ds,d){
+  selectedDay=ds;
+  const notes=DB.monthlyNotes();
+  document.getElementById('monthly-day-title').textContent='Catatan '+d+' — '+(document.getElementById('cal-month-label').textContent);
+  const n=notes[ds];
+  const nd=document.getElementById('monthly-day-notes');
+  if(n){nd.innerHTML=`<div style="background:var(--bg3);padding:12px;border-radius:8px;font-size:13px;line-height:1.7;white-space:pre-wrap">${n}</div>`;}
+  else{nd.innerHTML='<div class="empty-state" style="padding:20px">Belum ada catatan untuk hari ini.</div>';}
+}
+
+function showMonthlyForm(){
+  if(!selectedDay){alert('Pilih tanggal terlebih dahulu.');return;}
+  document.getElementById('monthly-day-form').style.display='block';
+  const notes=DB.monthlyNotes();
+  document.getElementById('monthly-note-text').value=notes[selectedDay]||'';
+}
+
+function saveMonthlyNote(){
+  if(!selectedDay)return;
+  const notes=DB.monthlyNotes();
+  notes[selectedDay]=document.getElementById('monthly-note-text').value;
+  DB.saveMonthlyNotes(notes);
+  document.getElementById('monthly-day-form').style.display='none';
+  selectDay(selectedDay,parseInt(selectedDay.split('-')[2]));
+  renderCalendar();
+}
+
+function renderMonthlyTasks(){
+  const tasks=DB.monthlyTasks();
+  const el=document.getElementById('monthly-tasks');
+  if(!tasks.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">◫</div>Belum ada checklist bulanan.</div>';return;}
+  el.innerHTML=tasks.map(t=>`
+    <div class="check-item ${t.done?'done':''}">
+      <div class="check-box ${t.done?'checked':''}" onclick="toggleMonthlyTask('${t.id}')"></div>
+      <div style="flex:1" onclick="toggleMonthlyTask('${t.id}')">
+        <div class="check-text">${t.name}</div>
+        ${t.date?`<div class="check-meta">Target: ${fmtDate(t.date)}</div>`:''}
+        ${t.note?`<div class="check-meta">${t.note}</div>`:''}
+      </div>
+      <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:10px" onclick="deleteMonthlyTask('${t.id}')">✕</button>
+    </div>`).join('');
+}
+
+function addMonthlyTask(){
+  const name=document.getElementById('monthly-task-name').value.trim();
+  if(!name)return;
+  const tasks=DB.monthlyTasks();
+  tasks.push({id:uid(),name,date:document.getElementById('monthly-task-date').value,note:document.getElementById('monthly-task-note').value,done:false});
+  DB.saveMonthlyTasks(tasks);
+  document.getElementById('monthly-task-name').value='';
+  document.getElementById('monthly-task-note').value='';
+  closeModalById('modal-add-monthly');renderMonthlyTasks();
+}
+
+function addMonthlyCheck(){
+  const name=document.getElementById('mchk-name').value.trim();
+  if(!name)return;
+  const tasks=DB.monthlyTasks();
+  tasks.push({id:uid(),name,done:false});
+  DB.saveMonthlyTasks(tasks);
+  document.getElementById('mchk-name').value='';
+  closeModalById('modal-add-monthly-task');renderMonthlyTasks();
+}
+
+function toggleMonthlyTask(id){
+  const t=DB.monthlyTasks();const i=t.findIndex(x=>x.id===id);
+  if(i<0)return;t[i].done=!t[i].done;
+  DB.saveMonthlyTasks(t);renderMonthlyTasks();
+}
+
+function deleteMonthlyTask(id){
+  DB.saveMonthlyTasks(DB.monthlyTasks().filter(t=>t.id!==id));renderMonthlyTasks();
+}
+
+// ══════════════════════════════════════════
+// HABITS
+// ══════════════════════════════════════════
+function renderHabits(){
+  const habits=DB.habits();
+  const el=document.getElementById('habits-list');
+  if(!habits.length){el.innerHTML=`<div class="empty-state"><div class="empty-state-icon">⬡</div>Belum ada habit. Tambahkan kebiasaan positif pertamamu!</div>`;return;}
+  el.innerHTML=habits.map(h=>{
+    const isDone=h.log&&h.log.includes(todayStr());
+    const streak=calcHabitStreak(h);
+    const pct=h.target?Math.min(Math.round((h.log||[]).length/h.target*100),100):0;
+    return `<div class="card mb-16" style="border-color:${isDone?h.color+'44':'var(--border)'}">
+      <div class="flex-between mb-8">
+        <div class="flex-center">
+          <div class="habit-color" style="background:${h.color};width:12px;height:12px"></div>
+          <div>
+            <div style="font-size:15px;font-weight:500">${h.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${catLabel(h.cat)}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="tag tag-purple">🔥 ${streak} hari</div>
+          <button class="btn ${isDone?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleHabitToday('${h.id}')">${isDone?'✓ Selesai':'Tandai Selesai'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteHabit('${h.id}')">✕</button>
+        </div>
+      </div>
+      ${h.why?`<div style="font-size:12px;color:var(--text4);margin-bottom:10px;font-style:italic">"${h.why}"</div>`:''}
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${(h.log||[]).length} / ${h.target||66} hari — ${pct}%</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${h.color}"></div></div>
+      <div class="streak-dots mt-12">
+        ${getLast21Days().map(d=>{
+          const done=h.log&&h.log.includes(d.str);
+          const isToday=d.str===todayStr();
+          return `<div class="streak-dot ${done?'done':''} ${isToday?'today':''}" title="${d.str}">${d.day}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function catLabel(c){const m={kesehatan:'💪 Kesehatan',mental:'🧠 Mental',produktif:'⚡ Produktivitas',sosial:'🤝 Sosial',finansial:'💰 Finansial',lainnya:'✨ Lainnya'};return m[c]||c;}
+
+function getLast21Days(){
+  const days=[];for(let i=20;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({str:d.toISOString().split('T')[0],day:d.getDate()});}return days;
+}
+
+function calcHabitStreak(h){
+  if(!h.log||!h.log.length)return 0;
+  let streak=0;let d=new Date();
+  for(let i=0;i<365;i++){
+    const ds=d.toISOString().split('T')[0];
+    if(h.log.includes(ds))streak++;else if(i>0)break;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+function addHabit(){
+  const name=document.getElementById('habit-name').value.trim();
+  if(!name)return;
+  const habits=DB.habits();
+  habits.push({id:uid(),name,cat:document.getElementById('habit-cat').value,target:+document.getElementById('habit-target').value||66,color:document.getElementById('habit-color').value,why:document.getElementById('habit-why').value,log:[],created:todayStr()});
+  DB.saveHabits(habits);
+  document.getElementById('habit-name').value='';document.getElementById('habit-why').value='';
+  closeModalById('modal-add-habit');renderHabits();renderDashboard();
+}
+
+function deleteHabit(id){
+  if(!confirm('Hapus habit ini?'))return;
+  DB.saveHabits(DB.habits().filter(h=>h.id!==id));renderHabits();renderDashboard();
+}
+
+// ══════════════════════════════════════════
+// BAD HABITS
+// ══════════════════════════════════════════
+function renderBadHabits(){
+  const bh=DB.badhabits();
+  const el=document.getElementById('badhabits-list');
+  if(!bh.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">⊗</div>Belum ada. Tambahkan kebiasaan buruk yang ingin kamu hilangkan.</div>';return;}
+  el.innerHTML=bh.map(h=>{
+    const today=todayStr();
+    const avoidedToday=h.clean&&h.clean.includes(today);
+    const streak=calcCleanStreak(h);
+    return `<div class="card mb-16" style="border-color:${avoidedToday?'rgba(16,185,129,.4)':'rgba(239,68,68,.2)'}">
+      <div class="flex-between mb-8">
+        <div>
+          <div style="font-size:15px;font-weight:500">⊗ ${h.name}</div>
+          ${h.replace?`<div style="font-size:11px;color:var(--success);margin-top:3px">Ganti dengan: ${h.replace}</div>`:''}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="tag ${avoidedToday?'tag-green':'tag-red'}">🛡 ${streak} hari bersih</div>
+          <button class="btn btn-sm ${avoidedToday?'btn-ghost':'btn-primary'}" onclick="toggleClean('${h.id}')">${avoidedToday?'✓ Bersih Hari Ini':'Tandai Bersih'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBadHabit('${h.id}')">✕</button>
+        </div>
+      </div>
+      ${h.why?`<div style="font-size:12px;color:var(--text4);margin-bottom:10px;font-style:italic">"${h.why}"</div>`:''}
+      <div class="streak-dots mt-8">
+        ${getLast21Days().map(d=>{
+          const clean=h.clean&&h.clean.includes(d.str);
+          const isToday=d.str===todayStr();
+          return `<div class="streak-dot ${clean?'done':''} ${isToday?'today':''}" style="${clean?'background:var(--success);border-color:var(--success)':''}" title="${d.str}">${d.day}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcCleanStreak(h){
+  if(!h.clean||!h.clean.length)return 0;
+  let streak=0;let d=new Date();
+  for(let i=0;i<365;i++){
+    const ds=d.toISOString().split('T')[0];
+    if(h.clean.includes(ds))streak++;else if(i>0)break;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+function addBadHabit(){
+  const name=document.getElementById('badhab-name').value.trim();
+  if(!name)return;
+  const bh=DB.badhabits();
+  bh.push({id:uid(),name,why:document.getElementById('badhab-why').value,replace:document.getElementById('badhab-replace').value,clean:[],created:todayStr()});
+  DB.saveBadhabits(bh);
+  document.getElementById('badhab-name').value='';document.getElementById('badhab-why').value='';document.getElementById('badhab-replace').value='';
+  closeModalById('modal-add-badhab');renderBadHabits();renderDashboard();
+}
+
+function toggleClean(id){
+  const bh=DB.badhabits();const i=bh.findIndex(x=>x.id===id);
+  if(i<0)return;
+  if(!bh[i].clean)bh[i].clean=[];
+  const t=todayStr();
+  if(bh[i].clean.includes(t))bh[i].clean=bh[i].clean.filter(d=>d!==t);
+  else bh[i].clean.push(t);
+  DB.saveBadhabits(bh);renderBadHabits();
+}
+
+function deleteBadHabit(id){
+  if(!confirm('Hapus tracking ini?'))return;
+  DB.saveBadhabits(DB.badhabits().filter(h=>h.id!==id));renderBadHabits();renderDashboard();
+}
+
+// ══════════════════════════════════════════
+// JOURNAL
+// ══════════════════════════════════════════
+let selectedEmotion='';
+function selectEmotion(btn,em){
+  document.querySelectorAll('.emotion-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');selectedEmotion=em;
+  document.getElementById('journal-emotion').value=em;
+}
+
+function renderJournal(){
+  const journals=DB.journals();
+  const el=document.getElementById('journal-list');
+  if(!journals.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">✦</div>Belum ada jurnal. Mulai refleksi harianmu!</div>';return;}
+  el.innerHTML=[...journals].reverse().map(j=>`
+    <div class="card mb-16">
+      <div class="flex-between mb-12">
+        <div class="flex-center">
+          <span style="font-size:24px">${j.emotion||'📝'}</span>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500">${fmtDate(j.date)}</div>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteJournal('${j.id}')">✕</button>
+      </div>
+      ${j.best?`<div class="mb-12"><div class="card-label">3 Hal Terbaik</div><div style="font-size:13px;white-space:pre-line;color:var(--text2)">${j.best}</div></div>`:''}
+      ${j.reflect?`<div class="mb-12"><div class="card-label">Refleksi</div><div style="font-size:13px;white-space:pre-line;color:var(--text2)">${j.reflect}</div></div>`:''}
+      ${j.lesson?`<div class="mb-12"><div class="card-label">Pelajaran</div><div style="font-size:13px;white-space:pre-line;color:var(--text2)">${j.lesson}</div></div>`:''}
+      ${j.tomorrow?`<div><div class="card-label">Rencana Esok</div><div style="font-size:13px;white-space:pre-line;color:var(--text2)">${j.tomorrow}</div></div>`:''}
+    </div>`).join('');
+}
+
+function addJournal(){
+  const journals=DB.journals();
+  journals.push({id:uid(),date:todayStr(),emotion:document.getElementById('journal-emotion').value,best:document.getElementById('journal-best').value,reflect:document.getElementById('journal-reflect').value,lesson:document.getElementById('journal-lesson').value,tomorrow:document.getElementById('journal-tomorrow').value});
+  DB.saveJournals(journals);
+  ['journal-best','journal-reflect','journal-lesson','journal-tomorrow'].forEach(id=>document.getElementById(id).value='');
+  selectedEmotion='';document.querySelectorAll('.emotion-btn').forEach(b=>b.classList.remove('active'));
+  closeModalById('modal-add-journal');renderJournal();
+}
+
+function deleteJournal(id){
+  if(!confirm('Hapus jurnal ini?'))return;
+  DB.saveJournals(DB.journals().filter(j=>j.id!==id));renderJournal();
+}
+
+// ══════════════════════════════════════════
+// GOALS
+// ══════════════════════════════════════════
+function renderGoals(){
+  const goals=DB.goals();
+  const el=document.getElementById('goals-list');
+  if(!goals.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">◎</div>Belum ada tujuan. Tetapkan tujuan pertamamu!</div>';return;}
+  el.innerHTML=goals.map(g=>`
+    <div class="goal-item mb-12">
+      <div class="goal-header">
+        <div class="goal-info">
+          <div class="goal-name" style="font-size:16px;font-family:'Cormorant Garamond',serif">${g.name}</div>
+          <div class="goal-deadline">${goalCatLabel(g.cat)} • Deadline: ${fmtDate(g.deadline)}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="tag ${g.progress>=100?'tag-green':'tag-purple'}">${g.progress}%</div>
+          <button class="btn btn-ghost btn-sm" onclick="openUpdateGoal('${g.id}',${g.progress})">Update</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteGoal('${g.id}')">✕</button>
+        </div>
+      </div>
+      ${g.steps?`<div style="font-size:12px;color:var(--text3);margin-top:8px;white-space:pre-line;line-height:1.6">${g.steps}</div>`:''}
+      <div class="progress-bar mt-12" style="height:8px"><div class="progress-fill ${g.progress>=100?'green':''}" style="width:${g.progress}%"></div></div>
+      <div class="mt-4" style="font-size:11px;color:var(--text4)">${g.progress>=100?'🎉 TERCAPAI!':g.progress+' / 100% selesai'}</div>
+      ${g.updateNote?`<div style="font-size:11px;color:var(--text4);margin-top:4px;font-style:italic">Update terakhir: "${g.updateNote}"</div>`:''}
+    </div>`).join('');
+}
+
+function goalCatLabel(c){const m={karir:'💼 Karir',kesehatan:'💪 Kesehatan',finansial:'💰 Finansial',relasi:'❤ Relasi',diri:'🌟 Diri',lainnya:'✨ Lainnya'};return m[c]||c;}
+
+function addGoal(){
+  const name=document.getElementById('goal-name').value.trim();
+  if(!name)return;
+  const goals=DB.goals();
+  goals.push({id:uid(),name,deadline:document.getElementById('goal-deadline').value,cat:document.getElementById('goal-cat').value,steps:document.getElementById('goal-steps').value,progress:+document.getElementById('goal-progress').value||0,created:todayStr()});
+  DB.saveGoals(goals);
+  document.getElementById('goal-name').value='';document.getElementById('goal-steps').value='';document.getElementById('goal-progress').value='0';
+  closeModalById('modal-add-goal');renderGoals();renderDashboard();
+}
+
+function openUpdateGoal(id,cur){
+  document.getElementById('update-goal-id').value=id;
+  document.getElementById('update-goal-val').value=cur;
+  document.getElementById('update-goal-note').value='';
+  openModal('modal-update-goal');
+}
+
+function updateGoal(){
+  const id=document.getElementById('update-goal-id').value;
+  const goals=DB.goals();const i=goals.findIndex(g=>g.id===id);
+  if(i<0)return;
+  goals[i].progress=Math.min(100,Math.max(0,+document.getElementById('update-goal-val').value));
+  goals[i].updateNote=document.getElementById('update-goal-note').value;
+  DB.saveGoals(goals);closeModalById('modal-update-goal');renderGoals();renderDashboard();
+}
+
+function deleteGoal(id){
+  if(!confirm('Hapus tujuan ini?'))return;
+  DB.saveGoals(DB.goals().filter(g=>g.id!==id));renderGoals();renderDashboard();
+}
+
+// ══════════════════════════════════════════
+// DREAMS
+// ══════════════════════════════════════════
+function renderDreams(){
+  const dreams=DB.dreams();
+  const el=document.getElementById('dreams-list');
+  if(!dreams.length){
+    el.style.display='block';
+    el.innerHTML='<div class="empty-state"><div class="empty-state-icon">★</div>Belum ada mimpi. Tuliskan mimpi besarmu!</div>';
+    return;
+  }
+  el.style.display='grid';
+  el.innerHTML=dreams.map(d=>`
+    <div class="dream-card">
+      <div class="tag ${dreamCatColor(d.cat)}" style="margin-bottom:12px">${dreamCatLabel(d.cat)}</div>
+      <div class="dream-title">${d.title}</div>
+      ${d.year?`<div class="tag tag-gold" style="margin-top:8px">Target: ${d.year}</div>`:''}
+      <div class="dream-desc">${d.desc}</div>
+      <div class="flex-between mt-12">
+        <div class="dream-date">Ditambahkan: ${fmtDate(d.created)}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteDream('${d.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function dreamCatLabel(c){const m={karir:'💼 Karir',kebebasan:'🌏 Kebebasan Finansial',keluarga:'👨‍👩‍👧 Keluarga',kesehatan:'💪 Kesehatan',gaya:'✨ Gaya Hidup',kontribusi:'🌟 Legacy'};return m[c]||c;}
+function dreamCatColor(c){const m={karir:'tag-purple',kebebasan:'tag-gold',keluarga:'tag-red',kesehatan:'tag-green',gaya:'tag-purple',kontribusi:'tag-gold'};return m[c]||'tag-purple';}
+
+function addDream(){
+  const title=document.getElementById('dream-title').value.trim();
+  if(!title)return;
+  const dreams=DB.dreams();
+  dreams.push({id:uid(),title,desc:document.getElementById('dream-desc').value,year:document.getElementById('dream-year').value,cat:document.getElementById('dream-cat').value,created:todayStr()});
+  DB.saveDreams(dreams);
+  document.getElementById('dream-title').value='';document.getElementById('dream-desc').value='';document.getElementById('dream-year').value='';
+  closeModalById('modal-add-dream');renderDreams();
+}
+
+function deleteDream(id){
+  if(!confirm('Hapus mimpi ini?'))return;
+  DB.saveDreams(DB.dreams().filter(d=>d.id!==id));renderDreams();
+}
+
+// ══════════════════════════════════════════
+// FINANCE
+// ══════════════════════════════════════════
+let finFilter='all';
+function renderFinance(){
+  const fins=DB.finances();
+  const totals={income:0,expense:0,saving:0,investment:0,emergency:0};
+  fins.forEach(f=>totals[f.type]=(totals[f.type]||0)+(+f.amount));
+
+  document.getElementById('fin-total-in').textContent=fmtRp(totals.income);
+  document.getElementById('fin-total-out').textContent=fmtRp(totals.expense);
+  document.getElementById('fin-total-sav').textContent=fmtRp(totals.saving);
+  document.getElementById('fin-total-inv').textContent=fmtRp(totals.investment);
+  document.getElementById('fin-total-emer').textContent=fmtRp(totals.emergency);
+  const balance=totals.income-totals.expense;
+  const balEl=document.getElementById('fin-balance');
+  balEl.textContent=fmtRp(Math.abs(balance));
+  balEl.style.color=balance>=0?'var(--success)':'var(--danger)';
+  if(balance<0) balEl.textContent='-'+fmtRp(Math.abs(balance));
+  // Emergency fund progress (target = 6x monthly expense)
+  const emerTarget=totals.expense*6||1;
+  document.getElementById('emer-prog').style.width=Math.min(totals.emergency/emerTarget*100,100)+'%';
+
+  const filtered=finFilter==='all'?fins:fins.filter(f=>f.type===finFilter);
+  const el=document.getElementById('finance-list');
+  if(!filtered.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">◈</div>Belum ada transaksi.</div>';return;}
+
+  el.innerHTML=[...filtered].reverse().map(f=>`
+    <div class="finance-item">
+      <div class="finance-icon" style="background:${finTypeColor(f.type,true)}">${finTypeIcon(f.type)}</div>
+      <div class="finance-info">
+        <div class="finance-name">${f.name}</div>
+        <div class="finance-note">${finTypeLabel(f.type)} ${f.note?'• '+f.note:''} • ${fmtDate(f.date)}</div>
+      </div>
+      <div class="finance-amount ${f.type==='expense'?'expense':f.type==='income'?'income':''}">${f.type==='expense'?'-':'+'}${fmtRp(f.amount)}</div>
+      <button class="btn btn-danger btn-sm" style="margin-left:8px;padding:3px 8px;font-size:10px" onclick="deleteFinance('${f.id}')">✕</button>
+    </div>`).join('');
+}
+
+function finTypeIcon(t){const m={income:'💚',expense:'❤',saving:'💛',investment:'💜',emergency:'💠'};return m[t]||'💰';}
+function finTypeColor(t,bg){const m={income:'rgba(16,185,129,.15)',expense:'rgba(239,68,68,.15)',saving:'rgba(245,158,11,.15)',investment:'rgba(124,58,237,.15)',emergency:'rgba(196,181,253,.15)'};return m[t]||'rgba(255,255,255,.05)';}
+function finTypeLabel(t){const m={income:'Pemasukan',expense:'Pengeluaran',saving:'Tabungan',investment:'Investasi',emergency:'Dana Darurat'};return m[t]||t;}
+
+function addFinance(){
+  const name=document.getElementById('fin-name').value.trim();
+  const amount=document.getElementById('fin-amount').value;
+  if(!name||!amount)return;
+  const fins=DB.finances();
+  fins.push({id:uid(),type:document.getElementById('fin-type').value,name,amount:+amount,note:document.getElementById('fin-note').value,date:todayStr()});
+  DB.saveFinances(fins);
+  document.getElementById('fin-name').value='';document.getElementById('fin-amount').value='';document.getElementById('fin-note').value='';
+  closeModalById('modal-add-finance');renderFinance();renderDashboard();
+}
+
+function deleteFinance(id){
+  if(!confirm('Hapus transaksi ini?'))return;
+  DB.saveFinances(DB.finances().filter(f=>f.id!==id));renderFinance();renderDashboard();
+}
+
+function filterFinance(cat,btn){
+  finFilter=cat;
+  document.querySelectorAll('.fin-tab').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-ghost');});
+  btn.classList.add('btn-primary');btn.classList.remove('btn-ghost');
+  renderFinance();
+}
+
+// ════ START ════
+init();
+</script>
+</body>
+</html>
